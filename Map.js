@@ -31,7 +31,21 @@ Map.prototype.draw = function() {
 };
 
 Map.prototype.addBlock = function(){
-    var x = getRandomInt(0, 31);
-    var y = getRandomInt(0, 17);
+    var createnewblock = true;
+    var x;
+    var y;
+    while (createnewblock) {
+        createnewblock = false;
+        x = getRandomInt(0, 31);
+        y = getRandomInt(0, 17);
+        if (snakeObject) {
+            for (count = 1; count < snakeObject.blocks.length; count++) {
+                if (x == snakeObject.blocks[count].x && y == snakeObject.blocks[count].y) {
+                    createnewblock = true;
+
+                }
+            }
+        }
+    }
     this.tiles[x][y] = 1;
 };

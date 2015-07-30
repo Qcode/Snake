@@ -4,7 +4,7 @@
 function Snake(x, y, length) {
     this.length = length;
     this.movementTimer = 0;
-    this.speed = .2;
+    this.speed = .1;
 
     this.direction = {x:1, y:0};
 
@@ -18,7 +18,9 @@ Snake.prototype.update = function(dt) {
     this.movementTimer += dt;
 
 
+
     if (this.movementTimer > this.speed) {
+
         this.updatefollowers();
 
         this.movementTimer -= this.speed;
@@ -29,9 +31,14 @@ Snake.prototype.update = function(dt) {
         this.blocks[1].x += this.direction.x;
         this.blocks[1].y += this.direction.y;
 
-        this.wallTeleportation();
+
+        if (this.checkDeath()) {
+            return false;
+        }
+
         this.getPoints();
-        this.checkDeath();
+
+
     }
 
 
@@ -77,21 +84,6 @@ Snake.prototype.keypressed = function(key) {
     }
 };
 
-Snake.prototype.wallTeleportation = function() {
-    if (this.blocks[1].x == -1) {
-        this.blocks[1].x = 31;
-    }
-    if (this.blocks[1].x == 32) {
-        this.blocks[1].x = 0;
-    }
-    if (this.blocks[1].y == -1) {
-        this.blocks[1].y = 17;
-    }
-    if (this.blocks[1].y == 18) {
-        this.blocks[1].y = 0;
-    }
-};
-
 Snake.prototype.getPoints = function() {
     if (mapObject.tiles[this.blocks[1].x][this.blocks[1].y] == 1) {
         mapObject.tiles[this.blocks[1].x][this.blocks[1].y] = 0;
@@ -101,7 +93,9 @@ Snake.prototype.getPoints = function() {
 };
 
 Snake.prototype.addBlock = function() {
+    updateHighScore(this.blocks.length-1);
     this.blocks.push({x:this.blocks[1].x, y:this.blocks[1].y, activated:false});
+
 };
 
 Snake.prototype.updatefollowers = function() {
@@ -125,7 +119,6 @@ Snake.prototype.updatefollowers = function() {
     }
 
     for (x=this.blocks.length-1; x > 1;x--) {
-        console.log(x);
         if (this.blocks[x].activated) {
             this.blocks[x].x = this.blocks[x-1].x;
             this.blocks[x].y = this.blocks[x-1].y;
@@ -134,9 +127,18 @@ Snake.prototype.updatefollowers = function() {
 };
 
 Snake.prototype.checkDeath = function() {
-    for (x=2;x<this.blocks.length;x++) {
+    for (x = 2; x < this.blocks.length; x++) {
         if (this.blocks[1].x == this.blocks[x].x && this.blocks[1].y == this.blocks[x].y && this.blocks[x].activated) {
+            console.log("collision reset");
             resetGame();
+            return true;
+
         }
     }
+    if (this.blocks[1].x == -1 || this.blocks[1].x == 32 || this.blocks[1].y == -1 || this.blocks[1].y == 18) {
+        resetGame();
+        console.log("off reset");
+        return true;
+    }
+
 };
